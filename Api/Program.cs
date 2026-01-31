@@ -33,6 +33,9 @@ try
         if (File.Exists(modelsXml)) options.IncludeXmlComments(modelsXml);
     });
 
+    builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddSingleton<IUserStore, UserStore>();
+
     Log.Information(">>> Ứng dụng đã sẵn sàng! Đang lắng nghe kết nối...");
     var app = builder.Build();
 
