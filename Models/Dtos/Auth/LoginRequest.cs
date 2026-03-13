@@ -1,0 +1,1 @@
+public record LoginRequest(string PhoneNumber, string Password);
