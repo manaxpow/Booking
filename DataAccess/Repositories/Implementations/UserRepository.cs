@@ -1,0 +1,19 @@
+using DataAccess.Data;
+using Microsoft.EntityFrameworkCore;
+
+public class UserRepository : GenericRepository<User>, IUserRepository
+{
+    public UserRepository(AppDbContext context) : base(context)
+    {
+    }
+
+    public async Task<User?> GetByPhoneAsync(string phoneNumber)
+    {
+        return await _dbSet.FirstOrDefaultAsync(u => u.Phone == phoneNumber);
+    }
+
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
+    }
+}
