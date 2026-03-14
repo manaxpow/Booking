@@ -1,3 +1,6 @@
+using VehicleBooking.Models.DTOs.Car;
+using VehicleBooking.Models.DTOs.Common;
+
 public class CarService : ICarService
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -7,6 +10,30 @@ public class CarService : ICarService
     {
         _unitOfWork = unitOfWork;
         _seatService = seatService;
+    }
+
+    public async Task<PagedResult<CarResponse>> GetCarsAsync(CarQueryParameters query)
+    {
+        var (cars, totalCount) = await _unitOfWork.Cars.GetPagedCarsAsync(query.Keyword, query.Brand, query.Page, query.PageSize);
+            
+        var carResponses = cars.Select(c => new CarResponse(c.Id, c.LicensePlate, c.Capacity, c.Brand)).ToList();
+
+        return new PagedResult<CarResponse>
+        {
+            Items = carResponses,
+            TotalCount = totalCount,
+            Page = query.Page,
+            PageSize = query.PageSize
+        };
+    }
+
+    public async Task<CarDetailResponse?> GetCarByIdAsync(int id)
+    {
+        var car = await _unitOfWork.Cars.GetCarWithSeatsByIdAsync(id);
+        if (car == null) return null;
+
+        var seats = car.Seats.Select(s => new SeatResponse(s.Id, s.Name)).ToList();
+        return new CarDetailResponse(car.Id, car.LicensePlate, car.Capacity, car.Brand, seats);
     }
 
     public async Task CreateCarAsync(CreateCarRequest request)

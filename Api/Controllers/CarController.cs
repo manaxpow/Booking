@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VehicleBooking.Models.DTOs.Car;
+using VehicleBooking.Models.DTOs.Common;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -12,8 +14,27 @@ public class CarController : ControllerBase
         _carService = carService;
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCars([FromQuery] CarQueryParameters query)
+    {
+        var result = await _carService.GetCarsAsync(query);
+        return Ok(result);
+    }
 
-    [HttpPost()]
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCarDetail(int id)
+    {
+        var car = await _carService.GetCarByIdAsync(id);
+        if (car == null)
+        {
+            return NotFound("Không tìm thấy xe.");
+        }
+        return Ok(car);
+    }
+
+    [HttpPost]
     [Authorize(Roles = "ADMIN")] // Chỉ những người có Role là "ADMIN" mới gọi được
     public async Task<IActionResult> AddCar([FromBody] CreateCarRequest request)
     {
