@@ -1,0 +1,1 @@
+public record CreateCarRequest(string LicensePlate, int Capacity, string Brand, List<CreateSeatRequest> Seats);

@@ -6,11 +6,15 @@ public class UnitOfWork : IUnitOfWork
     private readonly AppDbContext _context;
     private Hashtable _repositories;
     public IUserRepository Users { get; private set; }
+    public ICarRepository Cars { get; private set; }
+    public ISeatRepository Seats { get; private set; }
 
     public UnitOfWork(AppDbContext context)
     {
         _context = context;
         Users = new UserRepository(_context);
+        Cars = new CarRepository(_context);
+        Seats = new SeatRepository(_context);
     }
 
     public IGenericRepository<T> Repository<T>() where T : class
