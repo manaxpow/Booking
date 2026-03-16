@@ -4,8 +4,9 @@ using DataAccess.Data;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly AppDbContext _context;
-    private Hashtable _repositories;
+    private Hashtable? _repositories;
     public IUserRepository Users { get; private set; }
+    public IDriverRepository Drivers { get; private set; }
     public ICarRepository Cars { get; private set; }
     public ISeatRepository Seats { get; private set; }
 
@@ -13,6 +14,7 @@ public class UnitOfWork : IUnitOfWork
     {
         _context = context;
         Users = new UserRepository(_context);
+        Drivers = new DriverRepository(_context);
         Cars = new CarRepository(_context);
         Seats = new SeatRepository(_context);
     }
