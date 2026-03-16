@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/drivers")]
+[Route("api/[controller]")]
 public class DriverController : ControllerBase
 {
     private readonly IDriverService _driverService;

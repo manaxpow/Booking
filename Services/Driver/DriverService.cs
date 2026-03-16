@@ -55,7 +55,7 @@ public class DriverService : IDriverService
         var driver = new Driver
         {
             Name = request.Name,
-            Dob = request.Dob.Date,
+            Dob = DateTime.SpecifyKind(request.Dob.Date, DateTimeKind.Utc),
             License = request.License,
             CreateAt = DateTime.UtcNow,
             UpdateAt = DateTime.UtcNow
@@ -74,7 +74,7 @@ public class DriverService : IDriverService
         }
 
         driver.Name = request.Name;
-        driver.Dob = request.Dob.Date;
+        driver.Dob = DateTime.SpecifyKind(request.Dob.Date, DateTimeKind.Utc);
         driver.License = request.License;
         driver.UpdateAt = DateTime.UtcNow;
 
