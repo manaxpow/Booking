@@ -1,4 +1,6 @@
 ﻿using DataAccess.Data;
+using DataAccess.Repositories.Interfaces;
+using DataAccess.Repositories.Implementations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,8 @@ public static class DependencyInjection
         services.AddScoped<IDriverRepository, DriverRepository>();
         services.AddScoped<ICarRepository, CarRepository>();
         services.AddScoped<ISeatRepository, SeatRepository>();
+        services.AddScoped<IDestinationRepository, DestinationRepository>();
+        services.AddScoped<IScheduleRepository, ScheduleRepository>();
         return services;
     }
 }

@@ -6,6 +6,6 @@ public class Seat
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
 
-    public virtual Car Car { get; set; } = new Car();
+    public virtual Car Car { get; set; } = null!;
     public virtual ICollection<SeatBooking> SeatBookings { get; set; } = new List<SeatBooking>();
 }

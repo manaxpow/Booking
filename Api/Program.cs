@@ -66,13 +66,35 @@ try
 });
 
     // Cấu hình Swagger
-    builder.Services.AddSwaggerGen(options =>
+    _ = builder.Services.AddSwaggerGen(options =>
     {
         options.SwaggerDoc("v1", new OpenApiInfo
         {
             Title = "Vehicle Booking API",
             Version = "v1",
             Description = "Hệ thống đặt xe trực tuyến"
+        });
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+        });
+        options.AddSecurityRequirement(_ =>
+        {
+            var requirement = new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecuritySchemeReference("Bearer"),
+                    new List<string>()
+                }
+            };
+            return requirement;
+
         });
 
         var apiXml = Path.Combine(AppContext.BaseDirectory, "VehicleBooking.Api.xml");
@@ -118,6 +140,7 @@ try
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "Booking API v1");
             c.RoutePrefix = string.Empty; // Để Swagger là trang chủ khi chạy
+
         });
     }
 

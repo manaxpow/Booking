@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260308155956_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260319040145_InitialClean")]
+    partial class InitialClean
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -137,6 +137,12 @@ namespace DataAccess.Migrations
 
                     b.Property<int>("DriverId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("ExpectedDuration")
+                        .HasColumnType("interval");
 
                     b.Property<int>("FromDestinationId")
                         .HasColumnType("integer");

@@ -40,14 +40,19 @@ public class GlobalExceptionMiddleware
         // Mặc định là lỗi 500
         var statusCode = (int)HttpStatusCode.InternalServerError;
         var message = "Lỗi hệ thống nội bộ.";
-
+       
         // Xử lý riêng các loại lỗi cụ thể (Fundamentals)
         if (exception is DbUpdateConcurrencyException)
         {
+
             statusCode = (int)HttpStatusCode.Conflict;
             message = "Dữ liệu đã bị thay đổi bởi người khác. Vui lòng tải lại trang (Race Condition).";
         }
 
+        if (exception is DbUpdateException ex)
+        {
+            Console.WriteLine(ex.InnerException?.Message);
+        }
         context.Response.StatusCode = statusCode;
 
         var response = new ErrorResponse
@@ -58,6 +63,7 @@ public class GlobalExceptionMiddleware
         };
 
         var json = JsonSerializer.Serialize(response, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        Console.WriteLine(exception.ToString());
         await context.Response.WriteAsync(json);
     }
 }
