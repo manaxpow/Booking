@@ -135,6 +135,12 @@ namespace DataAccess.Migrations
                     b.Property<int>("DriverId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<TimeSpan>("ExpectedDuration")
+                        .HasColumnType("interval");
+
                     b.Property<int>("FromDestinationId")
                         .HasColumnType("integer");
 

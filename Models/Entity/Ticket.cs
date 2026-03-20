@@ -6,6 +6,6 @@ public class Ticket
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
 
-    public virtual User User { get; set; } = new User();
-    public virtual SeatBooking SeatBooking { get; set; } = new SeatBooking();
+    public virtual User User { get; set; } = null!;
+    public virtual SeatBooking SeatBooking { get; set; } = null!;
 }

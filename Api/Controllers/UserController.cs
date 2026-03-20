@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/users")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -13,7 +14,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
+    [Authorize(Roles = "ADMIN")]
     public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters query)
     {
         var result = await _userService.GetUsersAsync(query);
@@ -21,7 +22,6 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> GetUserById(int id)
     {
         var user = await _userService.GetUserByIdAsync(id);

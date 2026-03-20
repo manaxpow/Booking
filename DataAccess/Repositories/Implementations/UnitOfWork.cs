@@ -1,5 +1,6 @@
 using System.Collections;
 using DataAccess.Data;
+using DataAccess.Repositories.Interfaces;
 
 public class UnitOfWork : IUnitOfWork
 {
@@ -9,6 +10,9 @@ public class UnitOfWork : IUnitOfWork
     public IDriverRepository Drivers { get; private set; }
     public ICarRepository Cars { get; private set; }
     public ISeatRepository Seats { get; private set; }
+    public IDestinationRepository Destinations { get; private set; }
+    public IScheduleRepository Schedules { get; private set; }
+    public AppDbContext Context => _context;
 
     public UnitOfWork(AppDbContext context)
     {
@@ -17,6 +21,8 @@ public class UnitOfWork : IUnitOfWork
         Drivers = new DriverRepository(_context);
         Cars = new CarRepository(_context);
         Seats = new SeatRepository(_context);
+        Destinations = new DataAccess.Repositories.Implementations.DestinationRepository(_context);
+        Schedules = new DataAccess.Repositories.Implementations.ScheduleRepository(_context);
     }
 
     public IGenericRepository<T> Repository<T>() where T : class

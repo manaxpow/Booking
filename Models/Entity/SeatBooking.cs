@@ -8,7 +8,7 @@ public class SeatBooking
     public DateTime CreateAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
 
-    public virtual Schedule Schedule { get; set; } = new Schedule();
-    public virtual Seat Seat { get; set; } = new Seat();
-    public virtual Ticket Ticket { get; set; } = new Ticket();
+    public virtual Schedule Schedule { get; set; } = null!;
+    public virtual Seat Seat { get; set; } = null!;
+    public virtual Ticket Ticket { get; set; } = null!;
 }

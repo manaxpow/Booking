@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class DriverController : ControllerBase
 {
     private readonly IDriverService _driverService;
