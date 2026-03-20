@@ -1,2 +1,2 @@
 # Booking
-A website related to flight booking
+A website related to car booking
