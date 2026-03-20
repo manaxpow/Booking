@@ -7,6 +7,7 @@ using VehicleBooking.Models.DTOs.Common;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ScheduleController : ControllerBase
 {
     private readonly IScheduleService _scheduleService;

@@ -6,6 +6,7 @@ using VehicleBooking.Models.DTOs.Common;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class DestinationController : ControllerBase
 {
     private readonly IDestinationService _destinationService;
