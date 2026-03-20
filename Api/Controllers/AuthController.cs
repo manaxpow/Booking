@@ -12,14 +12,6 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-
-    [HttpPost("add-car")]
-    [Authorize(Roles = "ADMIN")] // Chỉ những người có Role là "ADMIN" mới gọi được
-    public IActionResult AddCar()
-    {
-        return Ok("Admin đã thêm xe thành công");
-    }
-
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {

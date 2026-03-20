@@ -11,4 +11,5 @@ public interface IScheduleService
     Task UpdateScheduleAsync(UpdateScheduleRequest request);
     Task DeleteScheduleAsync(int id);
     Task UpdateScheduleStatusAsync(int id, string status);
+    Task<PagedResult<SeatBookingResponse>> GetSeatBookingByScheduleIdAsync(int scheduleId);
 }

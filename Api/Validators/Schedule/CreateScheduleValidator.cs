@@ -34,7 +34,7 @@ public class CreateScheduleValidator : AbstractValidator<CreateScheduleRequest>
         RuleFor(x => x.Price)
             .GreaterThan(0)
             .WithMessage("Giá vé phải lớn hơn 0");
-        
+
         RuleFor(x => x.ExpectedDuration)
             .GreaterThan(TimeSpan.Zero)
             .WithMessage("Thời lượng dự kiến phải lớn hơn 0");

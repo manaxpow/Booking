@@ -3,6 +3,7 @@ using System;
 using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260320093849_UpdateSchedule")]
+    partial class UpdateSchedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -213,7 +216,13 @@ namespace DataAccess.Migrations
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("CurrentHoldId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsBooking")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsHold")
                         .HasColumnType("boolean");
 
                     b.Property<int>("ScheduleId")
@@ -232,6 +241,40 @@ namespace DataAccess.Migrations
                     b.HasIndex("SeatId");
 
                     b.ToTable("SeatBookings");
+                });
+
+            modelBuilder.Entity("SeatHold", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("HoldExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsConvertedToBooking")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsReleased")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("SeatBookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SeatBookingId");
+
+                    b.ToTable("SeatHold");
                 });
 
             modelBuilder.Entity("Ticket", b =>
@@ -372,6 +415,17 @@ namespace DataAccess.Migrations
                     b.Navigation("Seat");
                 });
 
+            modelBuilder.Entity("SeatHold", b =>
+                {
+                    b.HasOne("SeatBooking", "SeatBooking")
+                        .WithMany("HoldHistories")
+                        .HasForeignKey("SeatBookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SeatBooking");
+                });
+
             modelBuilder.Entity("Ticket", b =>
                 {
                     b.HasOne("SeatBooking", "SeatBooking")
@@ -422,6 +476,8 @@ namespace DataAccess.Migrations
 
             modelBuilder.Entity("SeatBooking", b =>
                 {
+                    b.Navigation("HoldHistories");
+
                     b.Navigation("Ticket")
                         .IsRequired();
                 });

@@ -117,7 +117,7 @@ public class ScheduleRepository : GenericRepository<Schedule>, IScheduleReposito
     public async Task<bool> HasActiveCarScheduleAsync(int carId, DateTime startTime, TimeSpan duration)
     {
         startTime = DateTime.SpecifyKind(startTime, DateTimeKind.Utc);
-        
+
         var endTime = startTime.Add(duration);
 
         return await _dbSet.AnyAsync(s =>
@@ -139,5 +139,21 @@ public class ScheduleRepository : GenericRepository<Schedule>, IScheduleReposito
             s.StartTime > startTime.AddMinutes(-60) // cach nhau it nhat 1h de tranh truong hop lich trinh ke tiep nhau gan nhau
         );
 
+    }
+
+    public async Task<IEnumerable<SeatBooking>> GetSeatBookingByScheduleIdAsync(int scheduleId)
+    {
+        return await _dbSet
+            .Where(s => s.Id == scheduleId)
+            .SelectMany(s => s.SeatBookings)
+            .Include(sb => sb.Seat)
+            .ToListAsync();
+    }
+
+    public async Task<SeatBooking?> GetSeatForUpdateAsync(int SeatBookingId)
+    {
+        return await _context.SeatBookings
+        .FromSqlRaw("SELECT * FROM SeatBookings WITH (UPDLOCK, ROWLOCK) WHERE Id = {0}", SeatBookingId)
+        .FirstOrDefaultAsync();
     }
 }

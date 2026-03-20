@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Models.Dtos.Schedule;
 using Services.Schedule;
 using VehicleBooking.Models.DTOs;
@@ -41,6 +42,17 @@ public class ScheduleController : ControllerBase
         {
             Message = "Lấy lịch trình thành công.",
             Data = schedule
+        });
+    }
+
+    [HttpGet("{id}/seats")]
+    public async Task<IActionResult> GetScheduleSeats(int id)
+    {
+        var seats = await _scheduleService.GetSeatBookingByScheduleIdAsync(id);
+        return Ok(new SuccessResponse<PagedResult<SeatBookingResponse>>
+        {
+            Message = "Lấy danh sách ghế trong lịch trình.",
+            Data = seats
         });
     }
 

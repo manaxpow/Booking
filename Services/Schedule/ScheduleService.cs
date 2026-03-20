@@ -277,4 +277,28 @@ public class ScheduleService : IScheduleService
             throw new KeyNotFoundException($"Không tìm thấy {type}.");
     }
 
+    public async Task<PagedResult<SeatBookingResponse>> GetSeatBookingByScheduleIdAsync(int scheduleId)
+    {
+        var seatBookings = await _unitOfWork.Schedules.GetSeatBookingByScheduleIdAsync(scheduleId);
+
+        var response = new PagedResult<SeatBookingResponse>
+        {
+            Items = seatBookings.Select(sb => new SeatBookingResponse
+            (
+                sb.Id,
+                sb.SeatId,
+                sb.Seat.Name,
+                sb.ScheduleId,
+                sb.IsHold,
+                sb.IsBooking,
+                sb.CreateAt,
+                sb.UpdateAt
+            )).ToList(),
+
+            TotalCount = seatBookings.Count(),
+            Page = 1,
+            PageSize = seatBookings.Count()
+        };
+        return response;
+    }
 }
