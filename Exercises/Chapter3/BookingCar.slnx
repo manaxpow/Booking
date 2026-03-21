@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BookingCar.Api/BookingCar.Api.csproj" />
+  <Project Path="BookingCar.DataAccess/BookingCar.DataAccess.csproj" />
+  <Project Path="BookingCar.Models/BookingCar.Models.csproj" />
+  <Project Path="BookingCar.Services/BookingCar.Services.csproj" />
+</Solution>

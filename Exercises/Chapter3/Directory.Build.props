@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <ArtifactsDir>$(MSBuildThisFileDirectory)artifact</ArtifactsDir>
+    <OutputPath>$(ArtifactsDir)\bin\$(MSBuildProjectName)</OutputPath>
+    <BaseIntermediateOutputPath>$(ArtifactsDir)\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="$(ArtifactsDir)\**" />
+    <EmbeddedResource Remove="$(ArtifactsDir)\**" />
+    <None Remove="$(ArtifactsDir)\**" />
+  </ItemGroup>
+</Project>

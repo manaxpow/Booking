@@ -1,0 +1,16 @@
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.DataAccess/net10.0/BookingCar.DataAccess.deps.json
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.DataAccess/net10.0/BookingCar.DataAccess.dll
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.DataAccess/net10.0/BookingCar.DataAccess.pdb
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.DataAccess/net10.0/BookingCar.DataAccess.xml
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.csproj.AssemblyReference.cache
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.AssemblyInfoInputs.cache
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.AssemblyInfo.cs
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.csproj.CoreCompileInputs.cache
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.sourcelink.json
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingC.D561D6DD.Up2Date
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.dll
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/refint/BookingCar.DataAccess.dll
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.xml
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/BookingCar.DataAccess.pdb
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.DataAccess/Debug/net10.0/ref/BookingCar.DataAccess.dll
