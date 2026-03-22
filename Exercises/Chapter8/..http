@@ -1,0 +1,27 @@
+@__HostAddress = http://localhost:5000
+@bookingId = 1
+@bookingCode = BK123
+
+### 1. Lấy mã QR thanh toán (VietQR)
+GET {{__HostAddress}}/api/payment/qr/{{bookingId}}
+Accept: application/json
+
+###
+
+### 2. Giả lập SePay gửi Webhook (Thanh toán thành công)
+POST {{__HostAddress}}/api/payment/sepay-webhook
+Content-Type: application/json
+
+{
+    "id": 123456,
+    "content": "{{bookingCode}}",
+    "transferAmount": 500000,
+    "referenceCode": "FT2608100112233",
+    "gateway": "MBBank",
+    "transactionDate": "2026-03-22 10:00:00"
+}
+
+###
+
+### 3. Kiểm tra trạng thái ghế (Dùng ké API cũ nếu có hoặc check DB)
+GET {{__HostAddress}}/api/payment/status/{{bookingId}}

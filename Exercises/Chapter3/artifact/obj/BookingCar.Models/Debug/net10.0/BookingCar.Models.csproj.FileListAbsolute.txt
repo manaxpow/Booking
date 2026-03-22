@@ -1,0 +1,14 @@
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.Models/net10.0/BookingCar.Models.deps.json
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.Models/net10.0/BookingCar.Models.dll
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.Models/net10.0/BookingCar.Models.pdb
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/bin/BookingCar.Models/net10.0/BookingCar.Models.xml
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.GeneratedMSBuildEditorConfig.editorconfig
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.AssemblyInfoInputs.cache
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.AssemblyInfo.cs
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.csproj.CoreCompileInputs.cache
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.sourcelink.json
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.dll
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/refint/BookingCar.Models.dll
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.xml
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/BookingCar.Models.pdb
+/home/manax/projects/Booking/Exercises/Chapter3/artifact/obj/BookingCar.Models/Debug/net10.0/ref/BookingCar.Models.dll
