@@ -43,6 +43,8 @@ public class BookingService : IBookingService
                 UpdateAt = DateTime.UtcNow
             };
 
+            Console.WriteLine($"[Total price]: {ticket.TotalPrice}");
+
             await _unitOfWork.Tickets.AddAsync(ticket);
             await _unitOfWork.CompleteAsync();
 
@@ -61,7 +63,7 @@ public class BookingService : IBookingService
                 TicketId = ticket.Id,
                 OrderCode = $"VE{ticket.Id}",
                 Status = PaymentStatus.PENDING,
-                ExpiredAt = DateTime.UtcNow.AddMinutes(15),
+                ExpiredAt = DateTime.UtcNow.AddMinutes(1),
                 Amount = ticket.TotalPrice,
                 CreatedAt = DateTime.UtcNow,
             };
@@ -78,6 +80,7 @@ public class BookingService : IBookingService
                 OrderCode = payment.OrderCode,
                 QrUrl = GetPaymentQr(payment.Amount, payment.OrderCode),
                 SeatNames = selectedSeats.Select(x => x.Seat.Name).ToList(),
+                TotalAmount = payment.Amount
             };
         }
         catch (Exception ex)
@@ -110,18 +113,23 @@ public class BookingService : IBookingService
 
         int ticketId = int.Parse(match.Groups[1].Value);
 
-        await _unitOfWork.BeginTransactionAsync();
+        using var transaction = await _unitOfWork.BeginTransactionAsync();
         try
         {
             var payment = await _unitOfWork.Payments.GetByTicketPendingByIdAsync(ticketId);
 
-            if (payment == null) return false;
+            if (payment == null)
+                throw new KeyNotFoundException("Không tìm thấy giao dịch.");
 
-            if (amount < payment.Amount) return false;
+            if (amount < payment.Amount)
+                throw new Exception("Gia tri thanh toan khong hop le.");
+
+            if (payment.ExpiredAt < DateTime.UtcNow)
+                throw new Exception("Giao dich da het han.");
 
             payment.Status = PaymentStatus.PAID;
 
-            var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
+            var ticket = await _unitOfWork.Tickets.GetTicketWithUserByIdAsync(ticketId);
 
             if (ticket == null || ticket.Status != TicketStatus.PENDING)
                 return false;
@@ -156,17 +164,32 @@ public class BookingService : IBookingService
             await _unitOfWork.CommitTransactionAsync();
             return true;
         }
-        catch
+        catch (Exception ex)
         {
             await _unitOfWork.RollbackTransactionAsync();
+
+            Console.WriteLine($"[FATAL ERROR]: {ex.Message}");
+            Console.WriteLine($"[STACK TRACE]: {ex.StackTrace}");
             return false;
         }
     }
 
 
-    public Task<PaymentInfoResponse> GetPaymentDetailsAsync(int ticketId)
+    public async Task<PaymentInfoResponse> GetPaymentDetailsAsync(int paymentId)
     {
-        throw new NotImplementedException();
+        var payment = await _unitOfWork.Payments.GetByIdAsync(paymentId);
+
+        if (payment == null)
+            throw new KeyNotFoundException("Không tìm thấy giao dịch.");
+
+        // 3. Trả về DTO (Không cần dùng Select)
+        return new PaymentInfoResponse
+        {
+            OrderCode = payment.OrderCode,
+            Amount = payment.Amount,
+            Status = payment.Status,
+            ExpiresAt = payment.ExpiredAt ?? DateTime.UtcNow
+        };
     }
 
     public string GetPaymentQr(decimal amount, string orderCode)

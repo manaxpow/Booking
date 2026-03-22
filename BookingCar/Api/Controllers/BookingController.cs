@@ -22,12 +22,12 @@ public class BookingController(IBookingService bookingService) : ControllerBase
         }
     }
 
-    [HttpGet("{ticketId}/payment-info")]
-    public async Task<IActionResult> GetPaymentInfo(int ticketId)
+    [HttpGet("{paymentId}/payment-info")]
+    public async Task<IActionResult> GetPaymentInfo(int paymentId)
     {
         try
         {
-            var response = await _bookingService.GetPaymentDetailsAsync(ticketId);
+            var response = await _bookingService.GetPaymentDetailsAsync(paymentId);
             return Ok(response);
         }
         catch (Exception ex)
@@ -37,6 +37,7 @@ public class BookingController(IBookingService bookingService) : ControllerBase
     }
 
     [HttpPost("sepay-webhook")]
+    [AllowAnonymous]
     public async Task<IActionResult> SePayWebhook([FromBody] SePayWebhookDto data)
     {
         Console.WriteLine($"Nhận Webhook từ SePay: Nội dung '{data.content}', Số tiền: {data.transferAmount}");

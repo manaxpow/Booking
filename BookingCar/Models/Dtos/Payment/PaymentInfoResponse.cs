@@ -11,5 +11,5 @@ public record PaymentInfoResponse
     public string QrUrl { get; init; } = null!;
 
     public DateTime ExpiresAt { get; init; }
-    public string Status { get; init; } = "PENDING";
+    public PaymentStatus Status { get; init; } = PaymentStatus.PENDING;
 }

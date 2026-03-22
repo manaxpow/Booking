@@ -9,6 +9,8 @@ public class TicketDetailRepository : GenericRepository<TicketDetail>, ITicketDe
 
     public async Task<IEnumerable<TicketDetail>> GetTicketDetailByTicketIdAsync(int ticketId)
     {
-        return await _dbSet.Where(x => x.TicketId == ticketId).ToListAsync();
+        return await _dbSet.Where(x => x.TicketId == ticketId)
+                            .Include(x => x.SeatBooking)
+                            .ToListAsync();
     }
 }

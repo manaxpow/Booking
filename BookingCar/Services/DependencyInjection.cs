@@ -5,6 +5,8 @@ public static class ServiceRegistration
 {
     public static IServiceCollection AddBusinessServices(this IServiceCollection services)
     {
+
+        // Services
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDriverService, DriverService>();
@@ -14,6 +16,10 @@ public static class ServiceRegistration
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IEmailService, EmailService>();
+
+
+        // Worker
+        services.AddHostedService<ExpiredBookingWorker>();
 
         return services;
     }
