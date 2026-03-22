@@ -33,7 +33,6 @@ public class BookingService : IBookingService
                 seatBooking.IsHold = true;
                 selectedSeats.Add(seatBooking);
             }
-
             var ticket = new Ticket
             {
                 UserId = request.UserId,
