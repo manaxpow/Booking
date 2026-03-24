@@ -14,25 +14,6 @@ public class CarService : ICarService
         _unitOfWork = unitOfWork;
     }
 
-	public async Task<ServiceResult<GetPagedCarsResponse>> GetPagedCarsAsync(GetPagedCarsRequest request)
-	{
-		if (request.Page <= 0 || request.PageSize <= 0)
-		{
-			return ServiceResult<GetPagedCarsResponse>.BadRequest("page và pageSize phải lớn hơn 0.");
-		}
-
-		var cars = await _unitOfWork.Cars.GetPagedCarsAsync(request.Keyword, request.Brand, request.Page, request.PageSize);
-		var items = cars.Select(MapCarSummaryResponse).ToList();
-
-		return ServiceResult<GetPagedCarsResponse>.Success(new GetPagedCarsResponse
-		{
-			Page = request.Page,
-			PageSize = request.PageSize,
-			Count = items.Count,
-			Items = items
-		});
-	}
-
 	public async Task<ServiceResult<GetCarByIdResponse>> GetByIdAsync(int id)
 	{
 		var car = await _unitOfWork.Cars.GetByIdAsync(id);
@@ -43,29 +24,6 @@ public class CarService : ICarService
 
 		var summary = MapCarSummaryResponse(car);
 		return ServiceResult<GetCarByIdResponse>.Success(new GetCarByIdResponse
-		{
-			Id = summary.Id,
-			LicensePlate = summary.LicensePlate,
-			Brand = summary.Brand,
-			Model = summary.Model,
-			SeatCount = summary.SeatCount,
-			Color = summary.Color,
-			ManufactureYear = summary.ManufactureYear,
-			IsActive = summary.IsActive,
-			CreatedAt = summary.CreatedAt
-		});
-	}
-
-	public async Task<ServiceResult<GetCarByLicensePlateResponse>> GetByLicensePlateAsync(string licensePlate)
-	{
-		var car = await _unitOfWork.Cars.GetByLicensePlateAsync(licensePlate);
-		if (car is null)
-		{
-			return ServiceResult<GetCarByLicensePlateResponse>.NotFound($"Không tìm thấy xe biển số '{licensePlate}'.");
-		}
-
-		var summary = MapCarSummaryResponse(car);
-		return ServiceResult<GetCarByLicensePlateResponse>.Success(new GetCarByLicensePlateResponse
 		{
 			Id = summary.Id,
 			LicensePlate = summary.LicensePlate,

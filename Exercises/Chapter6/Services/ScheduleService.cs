@@ -15,28 +15,6 @@ public class ScheduleService : IScheduleService
 		_unitOfWork = unitOfWork;
 	}
 
-	public async Task<ServiceResult<GetPagedSchedulesResponse>> GetPagedSchedulesAsync(GetPagedSchedulesRequest request)
-	{
-		if (request.Page <= 0 || request.PageSize <= 0)
-		{
-			return ServiceResult<GetPagedSchedulesResponse>.BadRequest("page và pageSize phải lớn hơn 0.");
-		}
-
-		var fromDateUtc = EnsureUtc(request.FromDate);
-		var toDateUtc = EnsureUtc(request.ToDate);
-
-		var schedules = await _unitOfWork.Schedules.GetPagedSchedulesAsync(request.DriverName, fromDateUtc, toDateUtc, request.Page, request.PageSize);
-		var items = schedules.Select(MapScheduleSummaryResponse).ToList();
-
-		return ServiceResult<GetPagedSchedulesResponse>.Success(new GetPagedSchedulesResponse
-		{
-			Page = request.Page,
-			PageSize = request.PageSize,
-			Count = items.Count,
-			Items = items
-		});
-	}
-
 	public async Task<ServiceResult<GetScheduleWithDetailsByIdResponse>> GetByIdAsync(int id)
 	{
 		var schedule = await _unitOfWork.Schedules.GetScheduleWithDetailsByIdAsync(id);

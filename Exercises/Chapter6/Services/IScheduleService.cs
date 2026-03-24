@@ -5,7 +5,6 @@ namespace Chapter6.Services;
 
 public interface IScheduleService
 {
-	Task<ServiceResult<GetPagedSchedulesResponse>> GetPagedSchedulesAsync(GetPagedSchedulesRequest request);
 	Task<ServiceResult<GetScheduleWithDetailsByIdResponse>> GetByIdAsync(int id);
 	Task<ServiceResult<CreateScheduleResponse>> CreateScheduleAsync(CreateScheduleRequest request);
 	Task<ServiceResult> DeleteScheduleAsync(int id);

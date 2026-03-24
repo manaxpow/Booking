@@ -16,13 +16,6 @@ public class SchedulesController : ControllerBase
         _scheduleService = scheduleService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<GetPagedSchedulesResponse>> GetPagedSchedules([FromQuery] GetPagedSchedulesRequest request)
-    {
-        var result = await _scheduleService.GetPagedSchedulesAsync(request);
-        return ToActionResult(result);
-    }
-
     [HttpGet("{id:int}")]
     public async Task<ActionResult<GetScheduleWithDetailsByIdResponse>> GetById(int id)
     {

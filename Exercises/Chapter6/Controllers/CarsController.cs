@@ -16,24 +16,10 @@ public class CarsController : ControllerBase
         _carService = carService;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<GetPagedCarsResponse>> GetPagedCars([FromQuery] GetPagedCarsRequest request)
-    {
-        var result = await _carService.GetPagedCarsAsync(request);
-        return ToActionResult(result);
-    }
-
     [HttpGet("{id:int}")]
     public async Task<ActionResult<GetCarByIdResponse>> GetById(int id)
     {
         var result = await _carService.GetByIdAsync(id);
-        return ToActionResult(result);
-    }
-
-    [HttpGet("license-plate/{licensePlate}")]
-    public async Task<ActionResult<GetCarByLicensePlateResponse>> GetByLicensePlate(string licensePlate)
-    {
-        var result = await _carService.GetByLicensePlateAsync(licensePlate);
         return ToActionResult(result);
     }
 

@@ -5,8 +5,6 @@ namespace Chapter6.Services;
 
 public interface ICarService
 {
-	Task<ServiceResult<GetPagedCarsResponse>> GetPagedCarsAsync(GetPagedCarsRequest request);
 	Task<ServiceResult<GetCarByIdResponse>> GetByIdAsync(int id);
-	Task<ServiceResult<GetCarByLicensePlateResponse>> GetByLicensePlateAsync(string licensePlate);
 	Task<ServiceResult<CreateCarResponse>> CreateAsync(CreateCarRequest request);
 }
