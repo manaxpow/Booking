@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Chapter10.Api/Chapter10.Api.csproj" />
+  <Project Path="Chapter10.DataAccess/Chapter10.DataAccess.csproj" />
+</Solution>
