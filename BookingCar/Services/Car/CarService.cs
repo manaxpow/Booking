@@ -1,3 +1,6 @@
+using System.Text.Json;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Caching.Distributed;
 using VehicleBooking.Models.DTOs.Car;
 using VehicleBooking.Models.DTOs.Common;
 
@@ -5,17 +8,21 @@ public class CarService : ICarService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISeatService _seatService;
+    private readonly IOutputCacheStore _cacheStore;
+    private readonly IDistributedCache _distributedCache;
 
-    public CarService(IUnitOfWork unitOfWork, ISeatService seatService)
+    public CarService(IUnitOfWork unitOfWork, ISeatService seatService, IOutputCacheStore cacheStore, IDistributedCache distributedCache)
     {
         _unitOfWork = unitOfWork;
         _seatService = seatService;
+        _cacheStore = cacheStore;
+        _distributedCache = distributedCache;
     }
 
     public async Task<PagedResult<CarResponse>> GetCarsAsync(CarQueryParameters query)
     {
         var (cars, totalCount) = await _unitOfWork.Cars.GetPagedCarsAsync(query.Keyword, query.Brand, query.Page, query.PageSize);
-            
+
         var carResponses = cars.Select(c => new CarResponse(c.Id, c.LicensePlate, c.Capacity, c.Brand)).ToList();
 
         return new PagedResult<CarResponse>
@@ -29,11 +36,26 @@ public class CarService : ICarService
 
     public async Task<CarDetailResponse?> GetCarByIdAsync(int id)
     {
+        var cacheKey = CacheKeyFactory.GetCarDetailKey(id);
+
+        var carCache = await _distributedCache.GetStringAsync(cacheKey);
+        if (carCache != null)
+        {
+            return JsonSerializer.Deserialize<CarDetailResponse>(carCache);
+        }
         var car = await _unitOfWork.Cars.GetCarWithSeatsByIdAsync(id);
         if (car == null) return null;
 
         var seats = car.Seats.Select(s => new SeatResponse(s.Id, s.Name)).ToList();
-        return new CarDetailResponse(car.Id, car.LicensePlate, car.Capacity, car.Brand, seats);
+        var carDetailResponse = new CarDetailResponse(car.Id, car.LicensePlate, car.Capacity, car.Brand, seats);
+
+        var cacheEntryOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(10)
+        };
+
+        await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(carDetailResponse), cacheEntryOptions);
+        return carDetailResponse;
     }
 
     public async Task CreateCarAsync(CreateCarRequest request)
@@ -65,6 +87,8 @@ public class CarService : ICarService
 
         await _unitOfWork.Cars.AddAsync(car);
         await _unitOfWork.CompleteAsync();
+
+        await _cacheStore.EvictByTagAsync(CacheKeyFactory.CarTag, default);
     }
 
     public async Task UpdateCarAsync(UpdateCarRequest request)
@@ -133,6 +157,9 @@ public class CarService : ICarService
 
         _unitOfWork.Cars.Update(car);
         await _unitOfWork.CompleteAsync();
+
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetCarKey(car.Id));
+        await _cacheStore.EvictByTagAsync(CacheKeyFactory.CarTag, default);
     }
 
     public async Task DeleteCarAsync(int id)
@@ -142,5 +169,7 @@ public class CarService : ICarService
 
         _unitOfWork.Cars.Remove(car);
         await _unitOfWork.CompleteAsync();
+
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetCarKey(car.Id));
     }
 }

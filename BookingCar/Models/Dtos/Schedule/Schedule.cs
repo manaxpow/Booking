@@ -42,7 +42,6 @@ public record ScheduleQuery
     public bool SortDescending { get; init; } = false;
 }
 
-
 public record ScheduleResponse(
     int Id,
     int CarId,
@@ -61,6 +60,7 @@ public record ScheduleResponse(
     DateTime? CreateAt,
     DateTime? UpdateAt
 )
+
 {
     public static implicit operator ScheduleResponse(PagedResult<ScheduleResponse> v)
     {
