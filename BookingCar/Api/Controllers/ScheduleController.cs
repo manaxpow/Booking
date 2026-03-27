@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.OutputCaching;
 using Models.Dtos.Schedule;
 using Services.Schedule;
 using VehicleBooking.Models.DTOs;
@@ -19,6 +20,7 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetScheduleById(int id)
     {
         if (id <= 0)
@@ -46,6 +48,7 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpGet("{id}/seats")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetScheduleSeats(int id)
     {
         var seats = await _scheduleService.GetSeatBookingByScheduleIdAsync(id);
@@ -57,6 +60,7 @@ public class ScheduleController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetSchedules([FromQuery] ScheduleQuery query)
     {
         var schedules = await _scheduleService.GetSchedulesAsync(query);

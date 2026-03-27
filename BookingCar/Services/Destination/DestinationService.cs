@@ -1,16 +1,23 @@
 using Models.Dtos.Destination;
 using VehicleBooking.Models.DTOs.Common;
 using DataAccess.Repositories.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
+using Microsoft.AspNetCore.OutputCaching;
 
 public class DestinationService : IDestinationService
 {
     private readonly IDestinationRepository _destinationRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDistributedCache _distributedCache;
+    private readonly IOutputCacheStore _cacheStore;
 
-    public DestinationService(IUnitOfWork unitOfWork)
+    public DestinationService(IUnitOfWork unitOfWork, IDistributedCache distributedCache, IOutputCacheStore cacheStore)
     {
         _unitOfWork = unitOfWork;
         _destinationRepository = unitOfWork.Destinations;
+        _distributedCache = distributedCache;
+        _cacheStore = cacheStore;
     }
 
     public async Task<PagedResult<DestinationResponse>> GetDestinationsAsync(DestinationQuery query)
@@ -47,6 +54,8 @@ public class DestinationService : IDestinationService
 
         await _destinationRepository.AddAsync(destination);
         await _unitOfWork.SaveChangeAsync();
+
+        await _cacheStore.EvictByTagAsync(CacheKeyFactory.DestinationTag, default);
     }
 
     public async Task UpdateDestinationAsync(UpdateDestinationRequest request, int id)
@@ -69,6 +78,10 @@ public class DestinationService : IDestinationService
 
         await _destinationRepository.UpdateAsync(existingDestination);
         await _unitOfWork.SaveChangeAsync();
+
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetDestinationKey(id));
+        await _cacheStore.EvictByTagAsync(CacheKeyFactory.DestinationTag, default);
+
     }
 
     public async Task DeleteDestinationAsync(int id)
@@ -83,14 +96,31 @@ public class DestinationService : IDestinationService
 
         await _destinationRepository.DeleteAsync(existingDestination);
         await _unitOfWork.SaveChangeAsync();
+
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetDestinationKey(id));
+        await _cacheStore.EvictByTagAsync(CacheKeyFactory.DestinationTag, default);
     }
 
     public async Task<DestinationResponse?> GetDestinationByIdAsync(int id)
     {
+        var cacheKey = CacheKeyFactory.GetDestinationKey(id);
+
+        var destinationCache = await _distributedCache.GetStringAsync(cacheKey);
+        if (destinationCache != null)
+        {
+            return JsonSerializer.Deserialize<DestinationResponse>(destinationCache);
+        }
         var destination = await _destinationRepository.GetByIdAsync(id);
         if (destination == null) return null;
         var destinationResponse =
             new DestinationResponse(destination.Id, destination.Province, destination.CreateAt, destination.UpdateAt);
+
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+        };
+
+        await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(destinationResponse), options);
         return destinationResponse;
     }
 }

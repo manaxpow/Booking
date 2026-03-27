@@ -2,11 +2,13 @@ using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Models.Dtos.Schedule;
 using DataAccess.Repositories.Interfaces;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace DataAccess.Repositories.Implementations;
 
 public class ScheduleRepository : GenericRepository<Schedule>, IScheduleRepository
 {
+
     public ScheduleRepository(AppDbContext context) : base(context)
     {
     }

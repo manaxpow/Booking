@@ -1,3 +1,6 @@
+using System.Text.Json;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Caching.Distributed;
 using Models.Dtos.Schedule;
 using VehicleBooking.Models.DTOs.Common;
 using ScheduleEntity = Schedule;
@@ -7,14 +10,27 @@ namespace Services.Schedule;
 public class ScheduleService : IScheduleService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IOutputCacheStore _cacheStore;
+    private readonly IDistributedCache _distributedCache;
+    private readonly ISeatService _seatService;
+    private readonly IDestinationService _destService;
+    private readonly ICarService _carService;
+    private readonly IDriverService _driverService;
 
-    public ScheduleService(IUnitOfWork unitOfWork)
+    public ScheduleService(IUnitOfWork unitOfWork, IOutputCacheStore cacheStore, IDistributedCache distributedCache, ISeatService seatService, IDestinationService destService, ICarService carService, IDriverService driverService)
     {
         _unitOfWork = unitOfWork;
+        _cacheStore = cacheStore;
+        _distributedCache = distributedCache;
+        _seatService = seatService;
+        _destService = destService;
+        _carService = carService;
+        _driverService = driverService;
     }
 
     public async Task<PagedResult<ScheduleResponse>> GetSchedulesAsync(ScheduleQuery query)
     {
+
         var (schedules, totalCount) = await _unitOfWork.Schedules
             .GetPagedSchedulesAsync(query);
 
@@ -49,18 +65,40 @@ public class ScheduleService : IScheduleService
 
     public async Task<ScheduleResponse?> GetScheduleByIdAsync(int id)
     {
-        var schedule = await _unitOfWork.Schedules.GetScheduleWithDetailsByIdAsync(id);
-        if (schedule == null) throw new KeyNotFoundException("Không tìm thấy lịch trình.");
+        var key = CacheKeyFactory.GetScheduleKey(id);
+
+        var rawData = await _distributedCache.GetStringAsync(key);
+        ScheduleEntity? schedule;
+        if (rawData != null)
+        {
+            schedule = JsonSerializer.Deserialize<ScheduleEntity>(rawData);
+        }
+        else
+        {
+            schedule = await _unitOfWork.Schedules.GetByIdAsync(id);
+            if (schedule == null) throw new KeyNotFoundException("Không tìm thay lịch trình.");
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            await _distributedCache.SetStringAsync(key, JsonSerializer.Serialize(schedule), options);
+        }
+
+        var car = await _carService.GetCarByIdAsync(schedule!.CarId);
+        var driver = await _driverService.GetDriverByIdAsync(schedule.DriverId);
+        var fromDest = await _destService.GetDestinationByIdAsync(schedule.FromDestinationId);
+        var toDest = await _destService.GetDestinationByIdAsync(schedule.ToDestinationId);
+
         return new ScheduleResponse(
             schedule.Id,
-            schedule.CarId,
-            schedule.DriverId,
-            schedule.Car.LicensePlate,
-            schedule.Driver.Name,
-            schedule.FromDestinationId,
-            schedule.FromDestination.Province,
-            schedule.ToDestinationId,
-            schedule.ToDestination.Province,
+            car?.Id ?? 0,
+            driver?.Id ?? 0,
+            car?.LicensePlate ?? "",
+            driver?.Name ?? "",
+            fromDest?.Id ?? 0,
+            fromDest?.Province ?? "",
+            toDest?.Id ?? 0,
+            toDest?.Province ?? "",
             schedule.StartTime,
             schedule.EndTime,
             schedule.ExpectedDuration,
@@ -144,8 +182,6 @@ public class ScheduleService : IScheduleService
         var schedule = await _unitOfWork.Schedules
             .GetScheduleWithDetailsByIdAsync(request.Id);
 
-
-
         if (schedule == null)
             throw new KeyNotFoundException("Không tìm thấy lịch trình.");
 
@@ -221,6 +257,9 @@ public class ScheduleService : IScheduleService
 
         _unitOfWork.Schedules.Update(schedule);
         await _unitOfWork.SaveChangeAsync();
+
+        // Evict cache
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetScheduleKey(schedule.Id));
     }
     public async Task DeleteScheduleAsync(int id)
     {
@@ -234,6 +273,9 @@ public class ScheduleService : IScheduleService
 
         _unitOfWork.Schedules.Remove(schedule);
         await _unitOfWork.SaveChangeAsync();
+
+        // Evict cache
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetScheduleKey(schedule.Id));
     }
 
     public async Task UpdateScheduleStatusAsync(int id, string status)
@@ -258,23 +300,9 @@ public class ScheduleService : IScheduleService
 
         _unitOfWork.Schedules.Update(schedule);
         await _unitOfWork.SaveChangeAsync();
-    }
-    private async Task ValidateCarExists(int carId)
-    {
-        if (await _unitOfWork.Cars.GetByIdAsync(carId) == null)
-            throw new KeyNotFoundException("Không tìm thấy xe.");
-    }
 
-    private async Task ValidateDriverExists(int driverId)
-    {
-        if (await _unitOfWork.Drivers.GetByIdAsync(driverId) == null)
-            throw new KeyNotFoundException("Không tìm thấy tài xế.");
-    }
-
-    private async Task ValidateDestinationExists(int id, string type)
-    {
-        if (await _unitOfWork.Destinations.GetByIdAsync(id) == null)
-            throw new KeyNotFoundException($"Không tìm thấy {type}.");
+        // Evict cache
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetScheduleKey(schedule.Id));
     }
 
     public async Task<PagedResult<SeatBookingResponse>> GetSeatBookingByScheduleIdAsync(int scheduleId)
@@ -300,5 +328,23 @@ public class ScheduleService : IScheduleService
             PageSize = seatBookings.Count()
         };
         return response;
+    }
+
+    private async Task ValidateCarExists(int carId)
+    {
+        if (await _unitOfWork.Cars.GetByIdAsync(carId) == null)
+            throw new KeyNotFoundException("Không tìm thấy xe.");
+    }
+
+    private async Task ValidateDriverExists(int driverId)
+    {
+        if (await _unitOfWork.Drivers.GetByIdAsync(driverId) == null)
+            throw new KeyNotFoundException("Không tìm thấy tài xế.");
+    }
+
+    private async Task ValidateDestinationExists(int id, string type)
+    {
+        if (await _unitOfWork.Destinations.GetByIdAsync(id) == null)
+            throw new KeyNotFoundException($"Không tìm thấy {type}.");
     }
 }

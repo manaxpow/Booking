@@ -1,12 +1,17 @@
+using System.Text.Json;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Caching.Distributed;
 using VehicleBooking.Models.DTOs.Common;
 
 public class DriverService : IDriverService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDistributedCache _distributedCache;
 
-    public DriverService(IUnitOfWork unitOfWork)
+    public DriverService(IUnitOfWork unitOfWork, IDistributedCache distributedCache)
     {
         _unitOfWork = unitOfWork;
+        _distributedCache = distributedCache;
     }
 
     public async Task<PagedResult<DriverResponse>> GetDriversAsync(DriverQueryParameters query)
@@ -38,16 +43,35 @@ public class DriverService : IDriverService
 
     public async Task<DriverDetailResponse?> GetDriverByIdAsync(int id)
     {
+        var cacheKey = CacheKeyFactory.GetDriverKey(id);
+
+        var driverCache = await _distributedCache.GetStringAsync(cacheKey);
+        if (driverCache != null)
+        {
+            return JsonSerializer.Deserialize<DriverDetailResponse>(driverCache);
+        }
         var driver = await _unitOfWork.Drivers.GetByIdAsync(id);
         if (driver == null) return null;
 
-        return new DriverDetailResponse(
+        var driverDetailResponse = new DriverDetailResponse(
             driver.Id,
             driver.Name,
             driver.Dob,
             driver.License,
             driver.CreateAt,
             driver.UpdateAt);
+
+        var options = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24)
+        };
+
+        await _distributedCache.SetStringAsync(
+            cacheKey,
+            JsonSerializer.Serialize(driverDetailResponse),
+            options);
+
+        return driverDetailResponse;
     }
 
     public async Task CreateDriverAsync(CreateDriverRequest request)
@@ -80,6 +104,8 @@ public class DriverService : IDriverService
 
         _unitOfWork.Drivers.Update(driver);
         await _unitOfWork.CompleteAsync();
+
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetDriverKey(driver.Id));
     }
 
     public async Task DeleteDriverAsync(int id)
@@ -92,5 +118,7 @@ public class DriverService : IDriverService
 
         _unitOfWork.Drivers.Remove(driver);
         await _unitOfWork.CompleteAsync();
+
+        await _distributedCache.RemoveAsync(CacheKeyFactory.GetDriverKey(driver.Id));
     }
 }

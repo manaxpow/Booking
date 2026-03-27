@@ -21,6 +21,7 @@ try
 
     // 3. Extensions (Services)
     builder.Services.AddIdentityServices(builder.Configuration);
+    builder.Services.AddCacheExtensions(builder.Configuration);
     builder.Services.AddValidationServices();
     builder.Services.AddSwaggerDocumentation();
 
@@ -30,12 +31,6 @@ try
 
     builder.Services.Configure<SePaySettings>(builder.Configuration.GetSection(SePaySettings.SectionName));
     builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(EmailSettings.SectionName));
-
-    builder.Services.AddStackExchangeRedisCache(options =>
-    {
-        options.Configuration = builder.Configuration.GetConnectionString("Redis");
-        options.InstanceName = "Booking_";
-    });
 
     builder.Services.AddControllers();
 
@@ -47,8 +42,24 @@ try
 
     app.UseSwaggerDocumentation();
 
+
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.Use(async (context, next) =>
+    {
+        context.Response.OnStarting(() =>
+        {
+            if (context.Response.Headers.ContainsKey("Age"))
+                context.Response.Headers["X-Cache-Status"] = "HIT";
+            else
+                context.Response.Headers["X-Cache-Status"] = "MISS";
+            return Task.CompletedTask;
+        });
+        await next();
+    });
+    app.UseOutputCache();
+
     app.MapControllers();
 
     Log.Information(">>> Ứng dụng đã sẵn sàng!");

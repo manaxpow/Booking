@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using VehicleBooking.Models.DTOs.Car;
 using VehicleBooking.Models.DTOs.Common;
 
@@ -17,6 +18,7 @@ public class CarController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
+    [OutputCache(PolicyName = "CarSearchResult")]
     public async Task<IActionResult> GetCars([FromQuery] CarQueryParameters query)
     {
         var result = await _carService.GetCarsAsync(query);

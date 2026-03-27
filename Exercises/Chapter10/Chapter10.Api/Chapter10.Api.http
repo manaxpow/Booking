@@ -1,0 +1,16 @@
+@Host = http://localhost:5174
+@Api = {{Host}}/api/booking
+
+### 1. Lấy danh sách ghế 
+GET {{Api}}/seats/1000
+Accept: application/json
+
+### 2. Đặt vé 
+POST {{Api}}/book
+Content-Type: application/json
+
+[1, 2, 3]
+
+### 3. Hủy vé
+DELETE {{Api}}/cancel/1
+Accept: application/json
