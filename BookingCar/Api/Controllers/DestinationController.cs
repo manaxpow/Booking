@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Models.Dtos.Destination;
 using VehicleBooking.Models.DTOs;
 using VehicleBooking.Models.DTOs.Common;
@@ -17,6 +18,7 @@ public class DestinationController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetDestinationById(int id)
     {
         var destination = await _destinationService.GetDestinationByIdAsync(id);
@@ -37,6 +39,8 @@ public class DestinationController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
+    [OutputCache(PolicyName = "DestinationSearchResult")]
     public async Task<IActionResult> GetDestinations([FromQuery] DestinationQuery query)
     {
         var destinations = await _destinationService.GetDestinationsAsync(query);
