@@ -21,16 +21,30 @@ namespace DataAccess.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Car - Seat (1-n)
+            // --- USER INDEXES ---
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(u => u.Email).IsUnique();
+                entity.HasIndex(u => u.Phone).IsUnique();
+            });
+
+            // --- CAR & SEAT INDEXES ---
             modelBuilder.Entity<Seat>()
                 .HasOne(s => s.Car)
                 .WithMany(c => c.Seats)
                 .HasForeignKey(s => s.CarId);
 
-            // Schedule Config
+            modelBuilder.Entity<Seat>().HasIndex(s => s.CarId);
+
+            // --- SCHEDULE CONFIG & INDEXES ---
             modelBuilder.Entity<Schedule>(entity =>
             {
                 entity.Property(e => e.Price).HasPrecision(12, 2);
+
+                // Index cho việc tìm chuyến xe theo ngày và địa điểm
+                entity.HasIndex(s => new { s.StartTime, s.FromDestinationId, s.ToDestinationId });
+                entity.HasIndex(s => s.CarId);
+                entity.HasIndex(s => s.DriverId);
 
                 entity.HasOne(s => s.Car)
                     .WithMany(c => c.Schedules)
@@ -40,7 +54,6 @@ namespace DataAccess.Data
                     .WithMany(d => d.Schedules)
                     .HasForeignKey(s => s.DriverId);
 
-                // Quan hệ Destination (From/To)
                 entity.HasOne(s => s.FromDestination)
                     .WithMany(d => d.FromSchedules)
                     .HasForeignKey(s => s.FromDestinationId)
@@ -52,9 +65,12 @@ namespace DataAccess.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // SeatBooking Config
+            // --- SEATBOOKING CONFIG & INDEXES ---
             modelBuilder.Entity<SeatBooking>(entity =>
             {
+                // UNIQUE INDEX: Quan trọng - Ngăn chặn đặt trùng 1 ghế trên cùng 1 chuyến
+                entity.HasIndex(sb => new { sb.ScheduleId, sb.SeatId }).IsUnique();
+
                 entity.HasOne(sb => sb.Schedule)
                     .WithMany(s => s.SeatBookings)
                     .HasForeignKey(sb => sb.ScheduleId);
@@ -64,7 +80,7 @@ namespace DataAccess.Data
                     .HasForeignKey(sb => sb.SeatId);
             });
 
-            // Ticket Config
+            // --- TICKET CONFIG & INDEXES ---
             modelBuilder.Entity<Ticket>(entity =>
             {
                 entity.HasIndex(t => t.UserId);
@@ -77,7 +93,7 @@ namespace DataAccess.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // TicketDetail Config
+            // --- TICKETDETAIL CONFIG & INDEXES ---
             modelBuilder.Entity<TicketDetail>(entity =>
             {
                 entity.HasIndex(td => td.TicketId);
@@ -94,10 +110,12 @@ namespace DataAccess.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Payment Config
+            // --- PAYMENT CONFIG & INDEXES ---
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.Property(e => e.Amount).HasPrecision(12, 2);
+                entity.HasIndex(p => p.TicketId);
+                entity.HasIndex(p => p.Status);
 
                 entity.HasOne(p => p.Ticket)
                     .WithMany()
