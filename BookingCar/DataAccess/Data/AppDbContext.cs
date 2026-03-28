@@ -67,10 +67,31 @@ namespace DataAccess.Data
             // Ticket Config
             modelBuilder.Entity<Ticket>(entity =>
             {
+                entity.HasIndex(t => t.UserId);
+                entity.HasIndex(t => t.Status);
+                entity.HasIndex(t => t.CreateAt);
+
                 entity.HasOne(t => t.User)
                     .WithMany(u => u.Tickets)
                     .HasForeignKey(t => t.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // TicketDetail Config
+            modelBuilder.Entity<TicketDetail>(entity =>
+            {
+                entity.HasIndex(td => td.TicketId);
+                entity.HasIndex(td => td.SeatBookingId);
+
+                entity.HasOne(td => td.Ticket)
+                    .WithMany(td => td.TicketDetails)
+                    .HasForeignKey(td => td.TicketId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(td => td.SeatBooking)
+                    .WithMany()
+                    .HasForeignKey(td => td.SeatBookingId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Payment Config
@@ -81,20 +102,6 @@ namespace DataAccess.Data
                 entity.HasOne(p => p.Ticket)
                     .WithMany()
                     .HasForeignKey(p => p.TicketId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            // TicketDetail Config
-            modelBuilder.Entity<TicketDetail>(entity =>
-            {
-                entity.HasOne(td => td.Ticket)
-                    .WithMany(td => td.TicketDetails)
-                    .HasForeignKey(td => td.TicketId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(td => td.SeatBooking)
-                    .WithMany()
-                    .HasForeignKey(td => td.SeatBookingId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

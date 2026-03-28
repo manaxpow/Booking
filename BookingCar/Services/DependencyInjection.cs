@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Services.Schedule;
+using Services.Ticket;
 
 public static class ServiceRegistration
 {
@@ -15,6 +16,7 @@ public static class ServiceRegistration
         services.AddScoped<IDestinationService, DestinationService>();
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IEmailService, EmailService>();
 
 
