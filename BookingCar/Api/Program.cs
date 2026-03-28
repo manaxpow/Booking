@@ -1,4 +1,6 @@
 using DataAccess;
+using DataAccess.Data;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using VehicleBooking.Api.Extensions;
 using VehicleBooking.Api.Middlewares;
@@ -61,6 +63,25 @@ try
     app.UseOutputCache();
 
     app.MapControllers();
+
+    if (app.Environment.IsDevelopment())
+    {
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            try
+            {
+                var context = services.GetRequiredService<AppDbContext>();
+                await context.Database.MigrateAsync(); // Apply pending migrations
+                await AppDbContextSeed.SeedData(context); // Seed data
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred while seeding the database.");
+            }
+        }
+    }
 
     Log.Information(">>> Ứng dụng đã sẵn sàng!");
     app.Run();

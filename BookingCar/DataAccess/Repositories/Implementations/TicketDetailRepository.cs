@@ -11,6 +11,12 @@ public class TicketDetailRepository : GenericRepository<TicketDetail>, ITicketDe
     {
         return await _dbSet.Where(x => x.TicketId == ticketId)
                             .Include(x => x.SeatBooking)
+                            .Include(x => x.SeatBooking.Schedule)
+                            .Include(x => x.SeatBooking.Seat)
+                            .Include(x => x.SeatBooking.Schedule.Car)
+                            .Include(x => x.SeatBooking.Schedule.Driver)
+                            .Include(x => x.SeatBooking.Schedule.FromDestination)
+                            .Include(x => x.SeatBooking.Schedule.ToDestination)
                             .ToListAsync();
     }
 }

@@ -7,14 +7,11 @@ public class TicketRepository : GenericRepository<Ticket>, ITicketRepository
     {
     }
 
-    public Task<List<Ticket>> GetByScheduleIdAsync(int scheduleId)
+    public async Task<List<Ticket>> GetByUserIdAsync(int userId)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<Ticket>> GetByUserIdAsync(int userId)
-    {
-        throw new NotImplementedException();
+        return await _dbSet
+            .Where(t => t.UserId == userId)
+            .ToListAsync();
     }
 
     public async Task<Ticket?> GetTicketWithUserByIdAsync(int ticketId)
