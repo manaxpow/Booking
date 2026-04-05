@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VehicleBooking.Models.DTOs;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -9,10 +11,27 @@ public class BookingController(IBookingService bookingService) : ControllerBase
     private readonly IBookingService _bookingService = bookingService;
 
     [HttpPost]
+    [Authorize(Roles = "USER")]
     public async Task<IActionResult> CreateBookingAsync([FromBody] SeatBookingRequest request)
     {
         try
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new ErrorResponse
+                {
+                    StatusCode = 401,
+                    Message = "Không xác định được người dùng."
+                });
+            }
+            if (userId != request.UserId)
+            {
+                return Forbid();
+            }
+            ;
+
             var response = await _bookingService.CreateBookingAsync(request);
             return Ok(response);
         }

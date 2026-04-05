@@ -62,7 +62,7 @@ public class BookingService : IBookingService
                 TicketId = ticket.Id,
                 OrderCode = $"VE{ticket.Id}",
                 Status = PaymentStatus.PENDING,
-                ExpiredAt = DateTime.UtcNow.AddMinutes(1),
+                ExpiredAt = DateTime.UtcNow.AddMinutes(10),
                 Amount = ticket.TotalPrice,
                 CreatedAt = DateTime.UtcNow,
             };
