@@ -1,6 +1,6 @@
 namespace Chapter6.DTOs.Auth;
 
-public class LoginResponse
+public class RefreshTokenResponse
 {
     public string AccessToken { get; set; } = string.Empty;
     public DateTime ExpiresAtUtc { get; set; }

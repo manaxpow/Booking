@@ -55,6 +55,7 @@ builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IDriverService, DriverService>();
 builder.Services.AddScoped<IDestinationService, DestinationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<IRefreshTokenStore, RefreshTokenStore>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 

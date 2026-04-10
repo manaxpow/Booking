@@ -15,11 +15,16 @@ public class AuthService : IAuthService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly JwtSettings _jwtSettings;
+    private readonly IRefreshTokenStore _refreshTokenStore;
 
-    public AuthService(IUnitOfWork unitOfWork, IOptions<JwtSettings> jwtOptions)
+    public AuthService(
+        IUnitOfWork unitOfWork,
+        IOptions<JwtSettings> jwtOptions,
+        IRefreshTokenStore refreshTokenStore)
     {
         _unitOfWork = unitOfWork;
         _jwtSettings = jwtOptions.Value;
+        _refreshTokenStore = refreshTokenStore;
     }
 
     public async Task<ServiceResult<RegisterResponse>> RegisterAsync(RegisterRequest request)
@@ -98,9 +103,48 @@ public class AuthService : IAuthService
             return ServiceResult<LoginResponse>.BadRequest("Sai số điện thoại hoặc mật khẩu.");
         }
 
-        var (token, expiresAtUtc) = GenerateJwtToken(user);
+        var (accessToken, expiresAtUtc) = GenerateJwtToken(user);
+        var (refreshToken, refreshTokenExpiresAtUtc) = _refreshTokenStore.Generate(user.Id);
+
         return ServiceResult<LoginResponse>.Success(
-            new LoginResponse { AccessToken = token, ExpiresAtUtc = expiresAtUtc }
+            new LoginResponse
+            {
+                AccessToken = accessToken,
+                ExpiresAtUtc = expiresAtUtc,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiresAtUtc = refreshTokenExpiresAtUtc,
+            }
+        );
+    }
+
+    public async Task<ServiceResult<RefreshTokenResponse>> RefreshTokenAsync(RefreshTokenRequest request)
+    {
+        if (!_refreshTokenStore.TryConsume(request.RefreshToken, out var userId))
+        {
+            return ServiceResult<RefreshTokenResponse>.BadRequest(
+                "Refresh token không hợp lệ hoặc đã hết hạn."
+            );
+        }
+
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user is null)
+        {
+            return ServiceResult<RefreshTokenResponse>.NotFound(
+                "Người dùng không tồn tại."
+            );
+        }
+
+        var (accessToken, expiresAtUtc) = GenerateJwtToken(user);
+        var (newRefreshToken, refreshTokenExpiresAtUtc) = _refreshTokenStore.Generate(user.Id);
+
+        return ServiceResult<RefreshTokenResponse>.Success(
+            new RefreshTokenResponse
+            {
+                AccessToken = accessToken,
+                ExpiresAtUtc = expiresAtUtc,
+                RefreshToken = newRefreshToken,
+                RefreshTokenExpiresAtUtc = refreshTokenExpiresAtUtc,
+            }
         );
     }
 
