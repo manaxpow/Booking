@@ -38,6 +38,14 @@ public class AuthController : ControllerBase
         return ToActionResult(result);
     }
 
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    public async Task<ActionResult<RefreshTokenResponse>> Refresh([FromBody] RefreshTokenRequest request)
+    {
+        var result = await _authService.RefreshTokenAsync(request);
+        return ToActionResult(result);
+    }
+
     private ActionResult<T> ToActionResult<T>(ServiceResult<T> result)
     {
         return result.Status switch
